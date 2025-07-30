@@ -42,22 +42,28 @@ export interface AuthUser {
     _id: string;
     userName: string;
     fullName: string;
+    email: string;
     profilePic: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface SignUpData extends Record<string, unknown> {
-    createdAt: Date;
-    updatedAt: Date;
+    email: string;
+    password: string;
 }
 
 export interface SignInData extends Record<string, unknown> {
-    createdAt: Date;
-    updatedAt: Date;
+    // createdAt: Date;
+    // updatedAt: Date;
+    email: string;
+    password: string;
 }
 
 export interface UpdateProfileData extends Record<string, unknown> {
-    createdAt: Date;
-    updatedAt: Date;
+    base64Image: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface APIError {
@@ -151,3 +157,33 @@ export interface ThemeActions {
 
 type ThemeContextType = ThemeState & ThemeActions;
 export type { ThemeContextType };
+
+// ######################## THE LOGINPAGE OBJECT TYPE DECLARATION #######################
+export interface LoginPageData extends Record<string, unknown> {
+    email: string;
+    password: string;
+}
+
+type LogInPageDataContextType = LoginPageData;
+export type { LogInPageDataContextType };
+
+
+// ######################## THE SIGNUP_PAGE OBJECT TYPE DECLARATION #######################
+export interface SignUpPageData extends Record<string, unknown> {
+    // full_name: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+}
+
+type SignUpPageDataContextType = SignUpPageData;
+export type { SignUpPageDataContextType };
+
+
+
+// ######################## THE COMPONENT OBJECTS TYPE DECLARATION #######################
+export interface AuthImagePatternProps {
+    title: string;
+    subtitle: string;
+}
