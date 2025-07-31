@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/go-playground/validator/v10"
 	"github.com/tph-kds/chat_realtime/backend/internal/database"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
+// JWT KEY Initialization
 
 var jwtKey []byte
 
@@ -16,6 +19,7 @@ func GetJWTKey() []byte {
 	return []byte(jwtKey)
 }
 
+// MongoDB Initialization
 var client *mongo.Client
 
 func SetClient(c *mongo.Client) {
@@ -57,4 +61,19 @@ func SetUserCollection(c *mongo.Client) error {
 	userCollection = database.OpenCollection(client, dbName, collectionName)
 
 	return nil
+}
+
+// Cloudinary Initialization
+var cldClient *cloudinary.Cloudinary
+
+func SetCloudinary(c *cloudinary.Cloudinary) {
+	cldClient = c
+}
+
+func GetCloudinary() *cloudinary.Cloudinary {
+	return cldClient
+}
+
+func ConnectCloudinary(url string) {
+	cldClient, _ = database.ConnectCloudinary(url)
 }

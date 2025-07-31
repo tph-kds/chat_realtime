@@ -21,11 +21,24 @@ func main() {
 		log.Fatalf("Error loading environment variables: %v", err)
 	}
 
+	// // Get The initialize Args
 	// Read MongoDB URI from environment variable
 	mongoURI := os.Getenv("MONGODB_URI")
 	if mongoURI == "" {
 		log.Fatal("MONGODB_URI environment variable is not set")
 	}
+	// Get Cloudinary URL from environment
+	cldURL := os.Getenv("CLOUDINARY_URL")
+	if cldURL == "" {
+		log.Fatal("CLOUDINARY_URL environment variable is not set")
+	}
+	// Initialize Cloudinary
+	cldClient, err := database.ConnectCloudinary(cldURL)
+	if err != nil {
+		log.Fatalf("Cloudinary initialization error: %v", err)
+	}
+
+	authToken.SetCloudinary(cldClient)
 
 	// Connect to MongoDB
 	client, err := database.ConnectDB(mongoURI)

@@ -16,5 +16,7 @@ func SetupRoutes(router *gin.Engine) {
 	{
 		protected.GET("/users", controllers.GetUsers())
 		protected.GET("/users/:id", controllers.GetUser())
+		protected.PUT("/users/:id/update-profile", controllers.UpdateProfileUser())
+		protected.GET("/users/:id/check-user", controllers.CheckUser())
 	}
 }

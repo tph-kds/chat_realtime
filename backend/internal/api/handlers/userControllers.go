@@ -5,11 +5,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/gin-gonic/gin"
 	"github.com/tph-kds/chat_realtime/backend/internal/configs"
 	"github.com/tph-kds/chat_realtime/backend/internal/domain/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func SignUp() gin.HandlerFunc {
@@ -182,5 +184,115 @@ func GetUsers() gin.HandlerFunc {
 
 		// Return the list of users
 		c.JSON(http.StatusOK, users)
+	}
+}
+
+func UpdateProfileUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get claims from context
+		claims, exists := c.Get("claims")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		}
+
+		// Type assertion to get the claims object
+		tokenClaims, ok := claims.(*configs.Claims)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid claims"})
+			return
+		}
+
+		// Check if the user is an ADMIN
+		if tokenClaims.Role != "ADMIN" && tokenClaims.Role != "admin" {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+			return
+		}
+
+		userId := tokenClaims.UserID
+		var reqBody configs.UpdateProfileRequest
+		if err := c.BindJSON(&reqBody); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": "Invalid request body in update profile"})
+			return
+		}
+
+		// Validate User Input
+		if reqBody.ProfilePic == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Profile pic is required", "message": "Invalid request body in update profile"})
+			return
+		}
+
+		// Upload profile pic to cloudinary
+		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		defer cancel()
+
+		uploadResutl, err := GetCloudinary().Upload.Upload(ctx, reqBody.ProfilePic, uploader.UploadParams{})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "Failed to upload profile pic"})
+			return
+		}
+
+		// Update into database
+		ctx, cancel = context.WithTimeout(context.Background(), 60*time.Second)
+		defer cancel()
+
+		var updatedUser configs.User
+		err = userCollection.FindOneAndUpdate(
+			ctx,
+			bson.M{"user_id": userId},
+			bson.M{"$set": bson.M{"profile_pic": uploadResutl.SecureURL}},
+			options.FindOneAndUpdate().SetReturnDocument(options.After),
+		).Decode(&updatedUser)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "Failed to update profile pic in database"})
+			return
+		}
+
+		// Send successful response
+		c.JSON(http.StatusOK, updatedUser)
+
+	}
+}
+
+func CheckUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get claims from context
+		claims, exists := c.Get("claims")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		}
+
+		// Type assertion to get the claims object
+		tokenClaims, ok := claims.(*configs.Claims)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid claims"})
+			return
+		}
+
+		// Check if the user is an ADMIN
+		if tokenClaims.Role != "ADMIN" && tokenClaims.Role != "admin" {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+			return
+		}
+
+		userId := tokenClaims.UserID
+
+		// Get user from database
+		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		defer cancel()
+
+		var user configs.User
+		err := userCollection.FindOne(ctx, bson.M{"user_id": userId}).Decode(&user)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "Failed to get user from database"})
+			return
+		}
+
+		// 2. Send success response with user data
+		c.JSON(http.StatusOK, user)
+
 	}
 }
