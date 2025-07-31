@@ -111,11 +111,15 @@ export interface MessageChatUser {
     body: string;
     createdAt: Date;
     updatedAt: Date;
+    image: string;
+    text: string;
 }
 
 export interface SendMessageData {
-    receiverId: string;
-    body: string;
+    // receiverId: string;
+    // body: string;
+    image: string;
+    text: string;
 }
 
 export interface ChatAPIError {
@@ -186,4 +190,8 @@ export type { SignUpPageDataContextType };
 export interface AuthImagePatternProps {
     title: string;
     subtitle: string;
+}
+// ######################## THE FORMAT MESSAGE OBJECTS TYPE DECLARATION #######################
+export interface FormatMessageTimeProps {
+    date: string;
 }
