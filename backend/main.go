@@ -9,6 +9,7 @@ import (
 	"github.com/tph-kds/chat_realtime/backend/internal/api/routes"
 	"github.com/tph-kds/chat_realtime/backend/internal/configs"
 	"github.com/tph-kds/chat_realtime/backend/internal/database"
+	"github.com/tph-kds/chat_realtime/backend/internal/ws"
 )
 
 func main() {
@@ -63,6 +64,17 @@ func main() {
 
 	// Initialize MongoDB connection and gin router
 	r := gin.Default()
+
+	// Set up Websocket
+	socketServer := ws.NewSocketServer()
+	ws.SetSocketServer(socketServer)
+	go func() {
+		if err := socketServer.Serve(); err != nil {
+			log.Fatalf("Error starting WebSocket server: %v", err)
+		}
+	}()
+
+	defer socketServer.Close()
 
 	routes.SetupRoutes(r)
 

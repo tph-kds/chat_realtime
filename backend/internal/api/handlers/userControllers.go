@@ -101,6 +101,12 @@ func Login() gin.HandlerFunc {
 	}
 }
 
+func LogOut() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "Logout successful"})
+	}
+}
+
 func GetUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestedUserId := c.Param("id")

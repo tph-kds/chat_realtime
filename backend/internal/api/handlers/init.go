@@ -63,7 +63,7 @@ func SetUserCollection(c *mongo.Client) error {
 	return nil
 }
 
-// Cloudinary Initialization
+// ======================== Cloudinary Initialization ==========================
 var cldClient *cloudinary.Cloudinary
 
 func SetCloudinary(c *cloudinary.Cloudinary) {

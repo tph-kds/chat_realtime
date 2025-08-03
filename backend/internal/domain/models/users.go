@@ -20,3 +20,10 @@ type User struct {
 	Updated_at    time.Time          `json:"updated_at"`
 	User_id       string             `json:"user_id"`
 }
+
+type UserTest struct {
+	Email      string `json:"email" validate:"email,required"`
+	FullName   string `json:"fullName" validate:"required"`
+	Password   string `json:"password" validate:"required,min=6"`
+	ProfilePic string `json:"profilePic" validate:"required"`
+}

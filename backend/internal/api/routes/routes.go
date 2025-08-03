@@ -8,6 +8,7 @@ import (
 
 func SetupRoutes(router *gin.Engine) {
 	router.POST("/signup", controllers.SignUp())
+	router.POST("/logout", controllers.LogOut())
 	router.POST("/login", controllers.Login())
 
 	protected := router.Group("/")
@@ -18,5 +19,10 @@ func SetupRoutes(router *gin.Engine) {
 		protected.GET("/users/:id", controllers.GetUser())
 		protected.PUT("/users/:id/update-profile", controllers.UpdateProfileUser())
 		protected.GET("/users/:id/check-user", controllers.CheckUser())
+
+		// Websocket routes
+		protected.GET("/online-users", controllers.GetUsersForSidebar())
+		protected.GET("/messages/:id", controllers.GetMessages())
+		protected.POST("/messages/send/:id", controllers.SendMessage())
 	}
 }
