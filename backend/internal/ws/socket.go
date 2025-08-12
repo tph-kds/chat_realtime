@@ -7,6 +7,8 @@ import (
 	socketio "github.com/googollee/go-socket.io"
 )
 
+var server *socketio.Server
+
 // userSocketMap stores the mapping between user ID and socket ID
 var userSocketMap = make(map[string]string)
 
@@ -82,4 +84,10 @@ type ErrServerClosed struct{}
 
 func (e *ErrServerClosed) Error() string {
 	return "server closed"
+}
+
+func EmitToSocket(userId string, event string, data interface{}) {
+	if sid, ok := userSocketMap[userId]; ok {
+		server.BroadcastToRoom("/", sid, event, data)
+	}
 }

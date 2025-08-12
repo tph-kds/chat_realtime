@@ -7,6 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/tph-kds/chat_realtime/backend/internal/configs"
+	"github.com/tph-kds/chat_realtime/backend/internal/domain/models"
+	lib "github.com/tph-kds/chat_realtime/backend/internal/lib"
+	wsCustom "github.com/tph-kds/chat_realtime/backend/internal/ws"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -58,7 +61,7 @@ func GetMessages() gin.HandlerFunc {
 			return
 		}
 
-		var messages []configs.Message
+		var messages []models.Message
 		if err := cursor.All(ctx, &messages); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "Failed to get messages"})
 			return
@@ -163,7 +166,7 @@ func SendMessage() gin.HandlerFunc {
 			ReceiverId: receiverId,
 			Text:       body.Text,
 			Image:      imageUrl,
-			CreateAt:   time.Now(),
+			CreatedAt:  time.Now(),
 		}
 
 		_, err := userCollection.InsertOne(context.Background(), newMessages)
@@ -171,7 +174,7 @@ func SendMessage() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "Failed to send message"})
 			return
 		}
-		lib.EmitToSocket("newMessage", receiverId.Hex(), newMessages)
+		wsCustom.EmitToSocket("newMessage", receiverId.Hex(), newMessages)
 		c.JSON(http.StatusOK, gin.H{"message": "Message sent successfully"})
 
 	}

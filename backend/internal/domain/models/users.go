@@ -27,3 +27,12 @@ type UserTest struct {
 	Password   string `json:"password" validate:"required,min=6"`
 	ProfilePic string `json:"profilePic" validate:"required"`
 }
+
+type Message struct {
+	// ID         primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	SenderId   primitive.ObjectID `bson:"senderId" json:"senderId"`
+	ReceiverId primitive.ObjectID `bson:"receiverId" json:"receiverId"`
+	Text       string             `bson:"text" json:"text"`
+	Image      string             `bson:"image,omitempty" json:"image,omitempty"`
+	CreatedAt  time.Time          `bson:"createdAt" json:"createdAt"`
+}
