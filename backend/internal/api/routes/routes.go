@@ -7,6 +7,7 @@ import (
 )
 
 func SetupRoutes(router *gin.Engine) {
+	// Check Auth
 	router.POST("/signup", controllers.SignUp())
 	router.POST("/logout", controllers.LogOut())
 	router.POST("/login", controllers.Login())
@@ -15,6 +16,7 @@ func SetupRoutes(router *gin.Engine) {
 
 	protected.Use(middleware.Authenticate())
 	{
+		protected.GET("/auth/check-auth", controllers.CheckAuth)
 		protected.GET("/users", controllers.GetUsers())
 		protected.GET("/users/:id", controllers.GetUser())
 		protected.PUT("/users/:id/update-profile", controllers.UpdateProfileUser())

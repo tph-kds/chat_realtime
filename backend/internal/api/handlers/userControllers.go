@@ -302,3 +302,25 @@ func CheckUser() gin.HandlerFunc {
 
 	}
 }
+
+func CheckAuth(c *gin.Context) {
+	// Lấy claims từ context (middleware đã gắn vào)
+	claims, exists := c.Get("claims")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	tokenClaims, ok := claims.(*configs.Claims)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid claims"})
+		return
+	}
+
+	// Return user Info to similar to the  req.user
+	c.JSON(http.StatusOK, gin.H{
+		"id":    tokenClaims.UserID,
+		"email": tokenClaims.Email,
+		"role":  tokenClaims.Role,
+	})
+}

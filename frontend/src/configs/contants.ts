@@ -34,9 +34,10 @@ export const THEMES = [
 ] as const; // List of available themes
 
 
-export const API_BASE_URL = "http://localhost:3000/api";
+export const API_BASE_URL = "http://localhost:8080";
 export const PROD_API_BASE_URL = "https://your-production-api.com/api"; // Replace with your production API URL
 export const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
+export const SOCKET_BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:8080" : "/";
 
 
 export const PREVIEW_MESSAGES = [

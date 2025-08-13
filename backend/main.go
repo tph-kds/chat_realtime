@@ -3,8 +3,14 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
+	// "github.com/gofiber/fiber/v2/middleware/cors"
+	// "time"
+
 	authToken "github.com/tph-kds/chat_realtime/backend/internal/api/handlers"
 	"github.com/tph-kds/chat_realtime/backend/internal/api/routes"
 	"github.com/tph-kds/chat_realtime/backend/internal/configs"
@@ -64,6 +70,17 @@ func main() {
 
 	// Initialize MongoDB connection and gin router
 	r := gin.Default()
+
+	//  Setup CORS
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// Set up Websocket
 	socketServer := ws.NewSocketServer()

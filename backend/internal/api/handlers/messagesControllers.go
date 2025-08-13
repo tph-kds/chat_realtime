@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	// "fmt"
 	"net/http"
 	"time"
 
@@ -142,6 +143,8 @@ func SendMessage() gin.HandlerFunc {
 		senderId, _ := primitive.ObjectIDFromHex(tokenClaims.UserID)
 		receiverId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 
+		// fmt.Println("Sender ID:", senderId, "Receiver ID:", receiverId)
+
 		var body struct {
 			Text  string `json:"text"`
 			Image string `json:"image"`
@@ -155,7 +158,7 @@ func SendMessage() gin.HandlerFunc {
 		if body.Image != "" {
 			uploadResutl, err := lib.UploadToCloudinary(body.Image)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "Failed to upload image"})
 				return
 			}
 			imageUrl = uploadResutl.SecureURL

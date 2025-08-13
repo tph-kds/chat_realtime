@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import toast from 'react-hot-toast';
 import {io} from 'socket.io-client';
-import { BASE_URL} from '../configs/contants';
+import { SOCKET_BASE_URL} from '../configs/contants';
 import {axiosInstance} from '../lib/axios';
 import axios from 'axios';
 
@@ -34,7 +34,7 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
     signUp: async (signUpData: SignUpData) => {
         try {
             set({isSigningUp: true});
-            const res = await axiosInstance.post("/auth/signup", signUpData);
+            const res = await axiosInstance.post("/signup", signUpData);
             set({authUser: res.data});
             toast.success("Account created successfully");
             get().connectSocket();
@@ -60,8 +60,13 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
     signIn: async (signInData: SignInData) => {
         try {
             set({isLoggingIn: true});
-            const res = await axiosInstance.post("/auth/login", signInData);
-            set({authUser: res.data});
+            const res = await axiosInstance.post("/login", signInData);
+            // Get Token  and save it
+            const { token , user } = res.data;
+            // Lưu token vào localStorage
+            localStorage.setItem("token", token);
+    
+            set({authUser: user});
             toast.success("Login successful");
             get().connectSocket();
             // return res;
@@ -85,7 +90,7 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
 
     logOut: async () => {
         try {
-            await axiosInstance.get("/auth/logout");
+            await axiosInstance.get("/logout");
             set({authUser: null});
             toast.success("Logout successful");
             get().disconnectSocket();
@@ -108,7 +113,8 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
     updateProfile: async (updateProfileData: UpdateProfileData) => {
         set({isUpdatingProfile: true});
         try {
-            const res = await axiosInstance.put("/auth/update-profile", updateProfileData);
+            const userId = get().authUser?._id;
+            const res = await axiosInstance.put(`/users/${userId}/update-profile`, updateProfileData);
             set({authUser: res.data});
             toast.success("Profile updated successfully");
             // return res;
@@ -134,7 +140,7 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
         const {authUser} = get();
         if (!authUser || get().socket?.connected) return;
 
-        const socket = io(BASE_URL, {
+        const socket = io(SOCKET_BASE_URL, {
             query: {
                 userId: authUser._id,
             },
