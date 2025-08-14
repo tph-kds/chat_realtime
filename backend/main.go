@@ -85,6 +85,9 @@ func main() {
 	// Set up Websocket
 	socketServer := ws.NewSocketServer()
 	ws.SetSocketServer(socketServer)
+	// Set up Socket.IO URL
+	routes.SetUpSocketRoutes(r, socketServer)
+
 	go func() {
 		if err := socketServer.Serve(); err != nil {
 			log.Fatalf("Error starting WebSocket server: %v", err)

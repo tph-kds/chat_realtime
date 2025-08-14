@@ -5,6 +5,10 @@ import (
 	"net/url"
 
 	socketio "github.com/googollee/go-socket.io"
+	"github.com/googollee/go-socket.io/engineio"
+	"github.com/googollee/go-socket.io/engineio/transport"
+	"github.com/googollee/go-socket.io/engineio/transport/polling"
+	"github.com/googollee/go-socket.io/engineio/transport/websocket"
 )
 
 var server *socketio.Server
@@ -17,7 +21,12 @@ func GetReceiverSocketId(userId string) string {
 }
 
 func NewServer() *socketio.Server {
-	server := socketio.NewServer(nil)
+	server := socketio.NewServer(&engineio.Options{
+		Transports: []transport.Transport{
+			polling.Default,
+			websocket.Default,
+		},
+	})
 
 	// Handle new connections
 	server.OnConnect("/", func(s socketio.Conn) error {

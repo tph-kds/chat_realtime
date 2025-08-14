@@ -90,7 +90,7 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
 
     logOut: async () => {
         try {
-            await axiosInstance.get("/logout");
+            await axiosInstance.post("/logout");
             set({authUser: null});
             toast.success("Logout successful");
             get().disconnectSocket();
@@ -141,6 +141,9 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
         if (!authUser || get().socket?.connected) return;
 
         const socket = io(SOCKET_BASE_URL, {
+            // transports: ["websocket"],
+            // autoConnect: true,
+            // path: "/socket.io",
             query: {
                 userId: authUser._id,
             },

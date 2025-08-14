@@ -25,8 +25,8 @@ export const userChatService = create<ChatContextType>((set, get) => ({
     getUsers: async () => {
         set({isUsersLoading: true});
         try {
-            const res = await axiosInstance.get<{users: ChatUser[]}>("/messages/users");
-            set({users: res.data.users});
+            const res = await axiosInstance.get<{users: ChatUser[]}>("/users");
+            set({users: res.data.users || []} );
             // return res;
         } catch (error) {
             const axiosError = error as AxiosError<ChatAPIError>;
