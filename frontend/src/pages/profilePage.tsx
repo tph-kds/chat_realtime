@@ -8,6 +8,7 @@ import type { AuthContextType } from "../configs/types";
 
 const ProfilePage: React.FC = () => {
     const { authUser, isUpdatingProfile, updateProfile } = userAuthService((state) => state) as AuthContextType;
+    console.log("authUser IN PROFILE PAGE: ", authUser);
     const [selectedImg, setSelectedImg] = useState<string | null>(null);
     const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -77,7 +78,7 @@ const ProfilePage: React.FC = () => {
                 <User className="w-4 h-4" />
                 Full Name
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.fullName}</p>
+              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.email ? authUser.email.split("@")[0]: "default_name"}</p>
             </div>
 
             <div className="space-y-1.5">

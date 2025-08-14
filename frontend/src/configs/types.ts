@@ -149,7 +149,7 @@ export type { ChatContextType };
 
 
 // ######################## THE THEME CHANGE OBJECT TYPE DECLARATION #######################
-export type Theme = "light" | "dark" | "coffee" | "corporate";
+export type Theme = "light" | "dark" | "coffee" | "corporate" ;
 
 export interface ThemeState {
     theme: Theme;

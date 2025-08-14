@@ -4,6 +4,8 @@ import { userChatService } from "../services/service_userChat";
 import SideBarSkeleton from "./sideBarSkeleton";
 import { Users } from "lucide-react";
 
+import { changeUrl } from "../lib/utils";
+
 const SideBar = () => {
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = userChatService((state) => state);
 
@@ -46,7 +48,12 @@ const SideBar = () => {
         {filteredUsers.map((user) => (
           <button
             key={user._id}
-            onClick={() => setSelectedUser(user)}
+            onClick={
+              () => {
+                setSelectedUser(user);
+                changeUrl(`/chat/${user._id}`);
+               }
+            }
             className={`
               w-full p-3 flex items-center gap-3
               hover:bg-base-300 transition-colors

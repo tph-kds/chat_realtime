@@ -12,3 +12,12 @@ function formatMessageTime(date: string | number | Date): string {
 }
 
 export default formatMessageTime;
+
+
+export const changeUrl = (child_url: string) => {
+  window.history.pushState({}, "", child_url); // changes URL without reload
+};
+
+export const replaceUrl = () => {
+  window.history.replaceState({}, "", "/another-url"); // replaces current history entry
+};

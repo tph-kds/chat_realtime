@@ -69,6 +69,7 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
             set({authUser: user});
             toast.success("Login successful");
             get().connectSocket();
+            console.log("Have running this herre.....");
             // return res;
         } catch (error) {
             toast.error("Login failed");
@@ -111,11 +112,11 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
     },
 
     updateProfile: async (updateProfileData: UpdateProfileData) => {
-        set({isUpdatingProfile: true});
         try {
             const userId = get().authUser?._id;
             const res = await axiosInstance.put(`/users/${userId}/update-profile`, updateProfileData);
             set({authUser: res.data});
+            set({isUpdatingProfile: true});
             toast.success("Profile updated successfully");
             // return res;
         } catch (error) {

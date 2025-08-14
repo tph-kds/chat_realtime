@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -186,6 +187,11 @@ func GetUsers() gin.HandlerFunc {
 		if err := cursor.All(ctx, &users); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
+		}
+
+		// Print testing
+		for _, user := range users {
+			fmt.Println(user)
 		}
 
 		// Return the list of users

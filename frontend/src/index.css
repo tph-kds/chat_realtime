@@ -1,6 +1,10 @@
 @import "tailwindcss";
-@plugin "daisyui";
-
+@plugin "daisyui"{
+  themes: all;
+};
+/* @import "tailwindcss" source(none);
+@source "./public/*.{html,js}";
+@plugin "daisyui"; */
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
