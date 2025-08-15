@@ -66,9 +66,16 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
             // Lưu token vào localStorage
             localStorage.setItem("token", token);
     
-            set({authUser: user});
-            toast.success("Login successful");
-            get().connectSocket();
+            // set({authUser: user});
+            // toast.success("Login successful");
+            // get().connectSocket();
+            console.log("Testing", user?._id);
+            if (user?._id) {
+                console.log("Have running this herre..... ", user._id);
+                set({authUser: user});
+                toast.success("Login successful");
+                get().connectSocket();
+            }
             console.log("Have running this herre.....");
             // return res;
         } catch (error) {
@@ -139,7 +146,7 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
 
     connectSocket: () => {
         const {authUser} = get();
-        if (!authUser || get().socket?.connected) return;
+        if (!authUser || !authUser._id || get().socket?.connected) return;
 
         const socket = io(SOCKET_BASE_URL, {
             // transports: ["websocket"],

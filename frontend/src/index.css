@@ -74,3 +74,30 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+
+/* Phone Input */
+/* Make react-phone-number-input match DaisyUI's input-bordered style */
+.input-phone-number .PhoneInputInput {
+  --tw-bg-opacity: 1;
+  background-color: hsl(var(--b1) / var(--tw-bg-opacity));
+  border-color: hsl(var(--b1));
+  border-width: 1px;
+  border-radius: var(--rounded-btn, 0.5rem);
+  height: 3rem;
+  padding-left: 1rem;
+  font-size: 0.875rem;
+  line-height: 2;
+  width: 100%;
+}
+
+.input-phone-number .PhoneInputInput:focus {
+  outline: 2px solid hsl(var(--bc) / 0.2);
+  outline-offset: 2px;
+  border-color: hsl(var(--bc));
+}
+
+
+.input-phone-number .PhoneInputCountry {
+    margin: 0 0.5rem;
+}

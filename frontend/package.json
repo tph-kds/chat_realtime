@@ -13,7 +13,8 @@
   "dependencies": {
     "postcss-cli": "^11.0.1",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-phone-number-input": "^3.4.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",

@@ -6,14 +6,18 @@ import type { SignUpPageDataContextType } from "../configs/types";
 
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User} from "lucide-react";
 
+// Import the phone number input component and its CSS
+import PhoneInput, { isValidPhoneNumber,  parsePhoneNumber } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 const signUpPageDataInitial: SignUpPageDataContextType = {
     first_name: "",
     last_name: "",
     email: "",
     password: "",
+    phone_number: "",
 }
 
 const SignUpPage: React.FC = () => {
@@ -21,6 +25,42 @@ const SignUpPage: React.FC = () => {
     const [formData, setFormData] = useState<SignUpPageDataContextType>({...signUpPageDataInitial});
     const { signUp, isSigningUp } = userAuthService();
 
+    const [customFormattedPhoneNumber, setCustomFormattedPhoneNumber] = useState<string>("");
+
+        // New: Custom handler for phone number formatting
+    // Handler for the PhoneInput component
+    const handlePhoneNumberChange = (value?: string) => {
+        // Store the full international number from PhoneInput in the form state
+        setFormData(prevData => ({ ...prevData, phone_number: value || '' }));
+
+        // Now, apply your custom formatting to the number for display purposes
+        if (value) {
+            try {
+                const phoneNumber = parsePhoneNumber(value);
+                if (phoneNumber) {
+                    const nationalNumber = phoneNumber.nationalNumber;
+                    const rawValue = nationalNumber.replace(/\D/g, '');
+                    const truncatedValue = rawValue.substring(0, 9);
+                    let formattedValue = '';
+                    if (truncatedValue.length > 6) {
+                        formattedValue = `${truncatedValue.slice(0, 3)} ${truncatedValue.slice(3, 6)} ${truncatedValue.slice(6, 9)}`;
+                    } else if (truncatedValue.length > 3) {
+                        formattedValue = `${truncatedValue.slice(0, 3)} ${truncatedValue.slice(3, 6)}`;
+                    } else {
+                        formattedValue = truncatedValue;
+                    }
+                    setCustomFormattedPhoneNumber(formattedValue);
+                } else {
+                    setCustomFormattedPhoneNumber("");
+                }
+            } catch (error) {
+                console.error("Error formatting phone number:", error);
+                setCustomFormattedPhoneNumber("");
+            }
+        } else {
+            setCustomFormattedPhoneNumber("");
+        }
+    };
     const validateForm = () : boolean => {
         if (!formData.first_name || !formData.last_name || !formData.email || !formData.password) return false;
         if (!formData.first_name.trim() || !formData.last_name.trim()) {
@@ -36,6 +76,32 @@ const SignUpPage: React.FC = () => {
             toast.error("Invalid email format");
             return false;
         }
+
+        // Updated Validation: Check for phone number
+        if (!formData.phone_number) {
+            toast.error("Phone number is required");
+            return false;
+        }
+        // Use the library's validator for a more robust check
+        if (!isValidPhoneNumber(formData.phone_number)) {
+            toast.error("Invalid phone number");
+            return false;
+        }
+
+        // Updated: Validate the phone number format
+        // Remove spaces to check the raw length
+        const rawPhoneNumber = formData.phone_number.replace(/\s/g, '');
+        if (rawPhoneNumber.length !== 9) {
+            toast.error("Phone number must be exactly 9 digits.");
+            return false;
+        }
+        // Optional: Validate length of national number for Vietnam
+        const parsed = parsePhoneNumber(formData.phone_number);
+        if (parsed?.country === "VN" && parsed?.nationalNumber.length !== 9) {
+            toast.error("Vietnam phone number must be exactly 9 digits");
+            return false;
+        }
+
         if (!formData.password) {
             toast.error("Password is required");
             return false;
@@ -76,7 +142,7 @@ const SignUpPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="form-control">
                 <label className="label">
-                    <span className="label-text font-medium">Full Name</span>
+                    <span className="label-text font-medium">First Name</span>
                 </label>
                 <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -85,12 +151,58 @@ const SignUpPage: React.FC = () => {
                     <input
                     type="text"
                     className={`input input-bordered w-full pl-10`}
-                    placeholder="John Doe"
-                    value={formData.first_name + " " + formData.last_name}
-                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value, last_name: e.target.value })}
+                    placeholder="John"
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                     />
                 </div>
                 </div>
+
+                <div className="form-control">
+                <label className="label">
+                    <span className="label-text font-medium">Last Name</span>
+                </label>
+                <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="size-5 text-base-content/40" />
+                    </div>
+                    <input
+                    type="text"
+                    className={`input input-bordered w-full pl-10`}
+                    placeholder="Doe"
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                    />
+                </div>
+                </div>
+
+
+                {/* New Phone Number Input Field */}
+                <div className="form-control">
+                    <label className="label">
+                        <span className="label-text font-medium">Phone Number</span>
+                    </label>
+                    <div className="relative">
+                        {/* The PhoneInput component */}
+                        <PhoneInput
+                            international
+                            displayInitialValueAsLocalNumber = {false}
+                            limitMaxLength = {true}
+                            maxLength={15}
+                            defaultCountry="VN" // Optional: Set a default country
+                            placeholder="Enter phone number - 123 456 789"
+                            value={formData.phone_number}
+                            onChange={handlePhoneNumberChange}
+                            className="input-phone-number" // Custom class for styling
+                            />
+                        {customFormattedPhoneNumber && (
+                            <p className="text-sm text-base-content/60 mt-2">
+                                Formatted: {customFormattedPhoneNumber}
+                            </p>
+                        )}
+                    </div>
+                </div>
+
 
                 <div className="form-control">
                 <label className="label">
