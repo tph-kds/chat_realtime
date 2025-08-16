@@ -179,7 +179,7 @@ export interface SignUpPageData extends Record<string, unknown> {
     last_name: string;
     email: string;
     password: string;
-    phone_number: string;
+    phone: string;
 }
 
 type SignUpPageDataContextType = SignUpPageData;

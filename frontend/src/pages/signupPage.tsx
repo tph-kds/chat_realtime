@@ -17,7 +17,7 @@ const signUpPageDataInitial: SignUpPageDataContextType = {
     last_name: "",
     email: "",
     password: "",
-    phone_number: "",
+    phone: "",
 }
 
 const SignUpPage: React.FC = () => {
@@ -31,7 +31,7 @@ const SignUpPage: React.FC = () => {
     // Handler for the PhoneInput component
     const handlePhoneNumberChange = (value?: string) => {
         // Store the full international number from PhoneInput in the form state
-        setFormData(prevData => ({ ...prevData, phone_number: value || '' }));
+        setFormData(prevData => ({ ...prevData, phone: value?.replace(/\s/g, '') || '' }));
 
         // Now, apply your custom formatting to the number for display purposes
         if (value) {
@@ -78,25 +78,27 @@ const SignUpPage: React.FC = () => {
         }
 
         // Updated Validation: Check for phone number
-        if (!formData.phone_number) {
+        if (!formData.phone) {
             toast.error("Phone number is required");
             return false;
         }
         // Use the library's validator for a more robust check
-        if (!isValidPhoneNumber(formData.phone_number)) {
+        if (!isValidPhoneNumber(formData.phone)) {
             toast.error("Invalid phone number");
             return false;
         }
 
         // Updated: Validate the phone number format
         // Remove spaces to check the raw length
-        const rawPhoneNumber = formData.phone_number.replace(/\s/g, '');
-        if (rawPhoneNumber.length !== 9) {
+        const rawPhoneNumber = formData.phone.replace(/\s/g, '');
+        console.log("Raw phone number: ", rawPhoneNumber);
+        if (rawPhoneNumber.length !== 12) {
             toast.error("Phone number must be exactly 9 digits.");
             return false;
         }
         // Optional: Validate length of national number for Vietnam
-        const parsed = parsePhoneNumber(formData.phone_number);
+        const parsed = parsePhoneNumber(formData.phone);
+        console.log("Parsed phone number: ", parsed?.country, parsed?.nationalNumber.length);
         if (parsed?.country === "VN" && parsed?.nationalNumber.length !== 9) {
             toast.error("Vietnam phone number must be exactly 9 digits");
             return false;
@@ -188,10 +190,10 @@ const SignUpPage: React.FC = () => {
                             international
                             displayInitialValueAsLocalNumber = {false}
                             limitMaxLength = {true}
-                            maxLength={15}
+                            maxLength={14}
                             defaultCountry="VN" // Optional: Set a default country
                             placeholder="Enter phone number - 123 456 789"
-                            value={formData.phone_number}
+                            value={formData.phone}
                             onChange={handlePhoneNumberChange}
                             className="input-phone-number" // Custom class for styling
                             />

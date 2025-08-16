@@ -34,10 +34,12 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
     signUp: async (signUpData: SignUpData) => {
         try {
             set({isSigningUp: true});
-            const res = await axiosInstance.post("/signup", signUpData);
-            set({authUser: res.data});
-            toast.success("Account created successfully");
-            get().connectSocket();
+            const res = await axiosInstance.post("/signup", signUpData);            
+            if (res.data.signupStatus || res.data.message === "User created successfully") {
+                // set({authUser: res.data.user});
+                toast.success("Account created successfully");
+                get().connectSocket();
+            }
             // return res;
         } catch (error) {
             toast.error("Account creation failed");
@@ -69,14 +71,13 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
             // set({authUser: user});
             // toast.success("Login successful");
             // get().connectSocket();
-            console.log("Testing", user?._id);
             if (user?._id) {
-                console.log("Have running this herre..... ", user._id);
+                // console.log("Have running this herre..... ", user._id);
                 set({authUser: user});
                 toast.success("Login successful");
                 get().connectSocket();
             }
-            console.log("Have running this herre.....");
+            // console.log("Have running this herre.....");
             // return res;
         } catch (error) {
             toast.error("Login failed");

@@ -20,13 +20,20 @@ func SignUp() gin.HandlerFunc {
 		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 		defer cancel()
 
+		var signUpStatus bool = false
 		var user models.User
 
+		// Set default role to user
+		if user.Role == nil || *user.Role == "" {
+			defaultRole := configs.DEFAULT_ROLE
+			user.Role = &defaultRole
+		}
 		// Get User Input
 		if err := c.BindJSON(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "message": err.Error()})
 			return
 		}
+
 		// Validate User Input
 		if validateErr := validate.Struct(user); validateErr != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": validateErr.Error(), "message": "Invalid user input"})
@@ -48,6 +55,7 @@ func SignUp() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User already exists with this email or phone number"})
 			return
 		}
+
 		// Generate rest of the user data
 		user.Password = HashPassword(user.Password)
 		user.Created_at = time.Now()
@@ -63,8 +71,11 @@ func SignUp() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": insertErr.Error(), "message": "Failed to create user"})
 			return
 		}
-
-		c.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
+		signUpStatus = true
+		c.JSON(http.StatusOK, gin.H{
+			"signupStatus": signUpStatus,
+			"message":      "User created successfully",
+		})
 	}
 }
 
