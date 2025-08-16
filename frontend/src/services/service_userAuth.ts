@@ -1,15 +1,17 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import toast from 'react-hot-toast';
 import {io} from 'socket.io-client';
 import { SOCKET_BASE_URL} from '../configs/contants';
 import {axiosInstance} from '../lib/axios';
 import axios from 'axios';
 
-import type { AuthContextType } from '../configs/types';
+import type { AuthContextType , AuthUser } from '../configs/types';
 import type { SignUpData, SignInData, UpdateProfileData } from '../configs/types';
 
 
-export const userAuthService = create<AuthContextType>((set, get) => ({
+export const userAuthService = create<AuthContextType>()(persist(
+    (set, get) => ({
     authUser: null,
     isSigningUp: false,
     isLoggingIn: false,
@@ -17,15 +19,17 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
     isCheckingAuth: true,
     onlineUsers: [],
     socket: null,
+    token: null,
 
     checkAuth: async () => {
         try {
-            const res  = await axiosInstance.get<AuthContextType>("/auth/check-auth");
-            set({authUser: res.data.authUser});
+            const res  = await axiosInstance.get<AuthUser>("/auth/check-auth");
+            set({authUser: res.data});
             get().connectSocket();
         } catch (error) {
             console.log("Error in Auth Check", error);
-            set({authUser: null});
+            // set({authUser: null});
+            set({ authUser: null, token: null });
         } finally {
             set({isCheckingAuth: false});
         }
@@ -38,7 +42,7 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
             if (res.data.signupStatus || res.data.message === "User created successfully") {
                 // set({authUser: res.data.user});
                 toast.success("Account created successfully");
-                get().connectSocket();
+                // get().connectSocket();
             }
             // return res;
         } catch (error) {
@@ -73,7 +77,7 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
             // get().connectSocket();
             if (user?._id) {
                 // console.log("Have running this herre..... ", user._id);
-                set({authUser: user});
+                set({authUser: user, token: token});
                 toast.success("Login successful");
                 get().connectSocket();
             }
@@ -100,7 +104,7 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
     logOut: async () => {
         try {
             await axiosInstance.post("/logout");
-            set({authUser: null});
+            set({authUser: null, token: null});
             toast.success("Logout successful");
             get().disconnectSocket();
             // return res;
@@ -116,6 +120,11 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
             }
 
             console.log("Error in logout", error);
+        } finally {
+            set({ authUser: null, token: null });
+            localStorage.removeItem("token");
+            get().disconnectSocket();
+            toast.success("Logout successful");
         }
     },
 
@@ -156,6 +165,9 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
             query: {
                 userId: authUser._id,
             },
+            auth: {
+                token: localStorage.getItem("token")
+            }
         });
 
         socket.connect();
@@ -174,5 +186,10 @@ export const userAuthService = create<AuthContextType>((set, get) => ({
         }
     },
 
-}));
+}),
+    {
+      name: "auth-storage", // key trong localStorage
+      partialize: (state) => ({ authUser: state.authUser, token: state.token }), 
+    }
+));
 

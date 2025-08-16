@@ -27,7 +27,7 @@ const App = () => {
 
     console.log("userAuth state: ", { authUser, isCheckingAuth });
 
-    if (isCheckingAuth && !authUser) {
+    if (isCheckingAuth) {
         return (
             <div className="flex items-center justify-center h-screen">
                 <Loader className="size-10 animate-spin" />
@@ -41,9 +41,11 @@ const App = () => {
             <Routes>
                 <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
                 <Route path="/signup" element={isSigningUp ? <Navigate to="/" /> : <SignUpPage />} />
-                <Route path="/login" element={authUser ? <Navigate to="/" /> : <LoginPage />} />
+                <Route path="/chat/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
+                <Route path="/login" element={authUser ? <Navigate to="/chat/" /> : <LoginPage />} />
                 <Route path="/settings" element={authUser ? <SettingsPage /> : <Navigate to="/login" />} />
                 <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+                <Route path="/chat/:id" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
             </Routes>
             <Toaster />
         </div>

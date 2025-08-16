@@ -66,7 +66,13 @@ export const userChatService = create<ChatContextType>((set, get) => ({
         const { selectedUser , messages } = get();
         try {
             const res = await axiosInstance.post(`/messages/send/${selectedUser?._id}`, messageData);
-            set({messages: [...messages, res.data]});
+            // console.log("Message sent: ", res.data.message);
+            if (messages) {
+                set({messages: [...messages, res.data.message]});
+            } else {
+                set({messages: [res.data.message]});
+            }
+            // set({messages: [...messages, res.data.message]});
             // return res;
         } catch (error) {
             const axiosError = error as AxiosError<ChatAPIError>;

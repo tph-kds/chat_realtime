@@ -178,7 +178,7 @@ func SendMessage() gin.HandlerFunc {
 			return
 		}
 		wsCustom.EmitToSocket("newMessage", receiverId.Hex(), newMessages)
-		c.JSON(http.StatusOK, gin.H{"message": "Message sent successfully"})
+		c.JSON(http.StatusOK, gin.H{"status": "Message sent successfully", "message": newMessages})
 
 	}
 }

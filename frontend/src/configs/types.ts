@@ -40,8 +40,10 @@ export interface Chat extends BaseAttributes {
 // ######################## THE AUTHENTICATED USER OBJECT TYPE DECLARATION #######################
 export interface AuthUser {
     _id: string;
-    userName: string;
-    fullName: string;
+    // userName: string;
+    // fullName: string;
+    first_name: string;
+    last_name: string;
     email: string;
     profilePic: string;
     createdAt: string;
@@ -79,6 +81,7 @@ export interface AuthState {
     isCheckingAuth: boolean | true;
     onlineUsers: string[];
     socket: Socket |null;
+    token: string | null | undefined;
 }
 
 export interface AuthActions {
@@ -100,7 +103,10 @@ export type { AuthContextType };
 export interface ChatUser {
     _id: string;
     userName: string;
-    fullName: string;
+    first_name: string;
+    last_name: string;
+    // fullName: string;
+    email: string;
     profilePic: string;
 }
 

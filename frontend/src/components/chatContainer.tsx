@@ -15,6 +15,11 @@ const ChatContainer: React.FC = () => {
     const { authUser } = userAuthService((state) => state) as AuthContextType;    
     const messageEndRef = useRef<HTMLDivElement>(null);
 
+    // console.log("Selected user: ", selectedUser);
+    // console.log("Auth user: ", authUser);
+    // console.log("Messages: ", messages);
+    // console.log("Is messages loading: ", isMessagesLoading);
+
     useEffect(() => {
         if (selectedUser?._id) {
             getMessages(selectedUser._id);
@@ -29,6 +34,7 @@ const ChatContainer: React.FC = () => {
         }   
     }, [messages]);
 
+    // console.log("Messages: ", messages);
 
     if (isMessagesLoading) {
         return (
@@ -48,14 +54,21 @@ const ChatContainer: React.FC = () => {
         );
     }
 
+    // console.log("Messages: ", messages);
+
     return (
         <div className="flex-1 flex flex-col overflow-auto">
         <ChatHeader />
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages?.map((message) => (
+            {messages?.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                    <p className="text-gray-400">Gửi tin nhắn đầu tiên của bạn...</p>
+                </div>
+            ) : (
+            messages?.map((message) => (
             <div
-                key={message._id}
+                key={message.senderId + message.createdAt}
                 className={`chat ${message.senderId === authUser?._id ? "chat-end" : "chat-start"}`}
                 ref={messageEndRef}
             >
@@ -87,7 +100,7 @@ const ChatContainer: React.FC = () => {
                 {message.text && <p>{message.text}</p>}
                 </div>
             </div>
-            ))}
+            )))}
         </div>
 
         <MessagesInput />
