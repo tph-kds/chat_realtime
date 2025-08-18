@@ -5,6 +5,7 @@ import (
 )
 
 // ======================== Socket Initialization ==========================
+
 var socketServer *socketio.Server = nil
 
 func SetSocketServer(s *socketio.Server) {
@@ -16,7 +17,7 @@ func GetSocketServer() *socketio.Server {
 }
 
 func NewSocketServer() *socketio.Server {
-	return socketio.NewServer(nil)
+	return NewServerCustom()
 }
 
 func ConnectSocketServer(s *socketio.Server) {
@@ -26,3 +27,14 @@ func ConnectSocketServer(s *socketio.Server) {
 func DisconnectSocketServer() {
 	socketServer = nil
 }
+
+// type SocketManager struct {
+// 	server        *socketio.Server
+// 	userSocketMap map[string]string
+// 	mu            sync.RWMutex // RWMUTEX for safe concurency access to the map
+// }
+
+// var (
+// 	instanceSM *SocketManager
+// 	once       sync.Once //Use it to ensure that the instance is created only once
+// )

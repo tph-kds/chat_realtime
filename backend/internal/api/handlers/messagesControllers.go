@@ -177,7 +177,11 @@ func SendMessage() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "Failed to send message"})
 			return
 		}
-		wsCustom.EmitToSocket("newMessage", receiverId.Hex(), newMessages)
+		// wsCustom.EmitToSocket(receiverId.Hex(), "newMessage", newMessages)
+		// wsCustom.EmitToSocket(senderId.Hex(), "newMessage", newMessages)
+		// socketManager := wsCustom.GetSocketManager()
+		wsCustom.EmitToSocket(receiverId.Hex(), "NewMessage", newMessages)
+		wsCustom.EmitToSocket(senderId.Hex(), "NewMessage", newMessages)
 		c.JSON(http.StatusOK, gin.H{"status": "Message sent successfully", "message": newMessages})
 
 	}

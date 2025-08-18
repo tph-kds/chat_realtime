@@ -94,7 +94,7 @@ export const userChatService = create<ChatContextType>((set, get) => ({
         // Ensure we don't have duplicate listeners
         socket.off("newMessage");
 
-        socket.on("newMessage", (message) => {
+        socket.on("newMessage", (message: MessageChatUser) => {
             const isFromSelectedUser = message.senderId === selectedUser._id;
             const isToCurrentUser = message.receiverId === userAuthService.getState().authUser?._id;
             if (isFromSelectedUser && isToCurrentUser) {

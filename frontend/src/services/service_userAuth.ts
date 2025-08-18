@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import toast from 'react-hot-toast';
-import {io} from 'socket.io-client';
+import * as io from 'socket.io-client';
 import { SOCKET_BASE_URL} from '../configs/contants';
 import {axiosInstance} from '../lib/axios';
 import axios from 'axios';
 
-import type { AuthContextType , AuthUser } from '../configs/types';
+import type { AuthContextType , AuthUser, SocketError } from '../configs/types';
 import type { SignUpData, SignInData, UpdateProfileData } from '../configs/types';
 
 
@@ -17,7 +17,7 @@ export const userAuthService = create<AuthContextType>()(persist(
     isLoggingIn: false,
     isUpdatingProfile: false,
     isCheckingAuth: true,
-    onlineUsers: [],
+    onlineUsers: [] as string[],
     socket: null,
     token: null,
 
@@ -81,7 +81,7 @@ export const userAuthService = create<AuthContextType>()(persist(
                 toast.success("Login successful");
                 get().connectSocket();
             }
-            // console.log("Have running this herre.....");
+            console.log("Connecting socket with userId:", user?._id);
             // return res;
         } catch (error) {
             toast.error("Login failed");
@@ -107,6 +107,9 @@ export const userAuthService = create<AuthContextType>()(persist(
             set({authUser: null, token: null});
             toast.success("Logout successful");
             get().disconnectSocket();
+            // Set in localStorage to null
+            localStorage.removeItem("token");
+            localStorage.removeItem("authUser");
             // return res;
         } catch (error) {
             toast.error("Logout failed");
@@ -120,12 +123,13 @@ export const userAuthService = create<AuthContextType>()(persist(
             }
 
             console.log("Error in logout", error);
-        } finally {
-            set({ authUser: null, token: null });
-            localStorage.removeItem("token");
-            get().disconnectSocket();
-            toast.success("Logout successful");
-        }
+        } 
+        // finally {
+        //     set({ authUser: null, token: null });
+        //     localStorage.removeItem("token");
+        //     get().disconnectSocket();
+        //     toast.success("Logout successful");
+        // }
     },
 
     updateProfile: async (updateProfileData: UpdateProfileData) => {
@@ -153,32 +157,89 @@ export const userAuthService = create<AuthContextType>()(persist(
 
         }
     },
+        // Version protocol 3, 4
+    // connectSocket: () => {
+    //     const {authUser} = get();
+    //     console.log("Check socket:", authUser);
+    //     console.log("Check socket:", authUser?._id);
+    //     console.log("Check socket:", get().socket?.connected);
+    //     if (!authUser || !authUser._id || get().socket?.connected) return;
+    //     console.log("Passing check 1......")
+    //     const socket = io(`${SOCKET_BASE_URL}?userId=${authUser._id}`, {
+    //         transports: ["websocket"],
+    //         autoConnect: true,
+    //         // path: "/socket.io",
+    //         // query: {
+    //         //     userId: authUser._id,
+    //         // },
+    //         // auth: {
+    //         //     token: localStorage.getItem("token") || "",
+    //         // },
+    //         // extraHeaders: {
+    //         //     "X-Socketio-Auth": JSON.stringify({ token: localStorage.getItem("token") }),
+    //         // },
+    //         withCredentials: true,
+    //     });
 
+    //     console.log("Passing check 3......")
+    //     // socket.connect();
+    //     console.log("Passing check 4......")
+
+    //     set({socket: socket });
+    //     socket.on("connect", () => {
+    //         console.log("✅ Connected with id:", socket.id);
+    //     });
+    //     socket.on("connect_error", (err) => {
+    //         console.error("❌ connect_error:", err.message, err.cause, err.stack);
+    //     });
+    //     socket.on("disconnect", (reason) => {
+    //         console.warn("⚠️ Socket disconnected:", reason);
+    //     });
+    //     socket.on("getOnlineUsers", (userIds: string[]) => {
+    //         console.log("Online users Tessting in Socket:", userIds);
+    //         set({onlineUsers: userIds});
+    //     });
+
+    //     console.log("Passing check 5......")
+    //     console.log("Socket connected!", get().onlineUsers);
+
+    // },
     connectSocket: () => {
-        const {authUser} = get();
+        const { authUser } = get();
         if (!authUser || !authUser._id || get().socket?.connected) return;
 
-        const socket = io(SOCKET_BASE_URL, {
-            // transports: ["websocket"],
-            // autoConnect: true,
-            // path: "/socket.io",
-            query: {
-                userId: authUser._id,
-            },
-            auth: {
-                token: localStorage.getItem("token")
-            }
+        const socket = io.connect(`${SOCKET_BASE_URL}/?userId=${authUser._id}`, {
+            // query: { userId: authUser._id },
+            transports: ["websocket"],
+            path: "/socket.io"
         });
 
-        socket.connect();
+        set({ socket: socket });
 
-        set({socket: socket });
-        socket.on("getOnlineUsers", (userIds) => {
-            set({onlineUsers: userIds});
+        socket.on("connect", () => {
+            console.log("✅ Connected with id:", socket.id);
         });
+
+        // socket.on("connect_error", (err: SocketError) => {
+        //     console.error("❌ connect_error:", err.message);
+        // });
+        socket.addEventListener("getOnlineUsers", (event: MessageEvent) => {
+            console.log("[getOnlineUsers]: Online users:", event.data);
+            set({ onlineUsers: event.data });
+        });
+        // Kiểm tra tất cả event
+        socket.on("socket.io/getOnlineUsers", (onlineUsers: MessageEvent) => {
+            console.log("[getOnlineUsers]: Online users:", onlineUsers);
+            // set({ onlineUsers: onlineUsers });
+        });
+        socket.on("disconnect", (reason: SocketError) => {
+            console.warn("⚠️ Socket disconnected:", reason);
+        });
+
     },
 
     disconnectSocket: () => {
+        console.log("Socket disconnected!", get().socket);
         const socket = get().socket;
         if (socket && socket.connected) {
             socket.disconnect();

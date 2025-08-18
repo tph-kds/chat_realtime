@@ -21,7 +21,7 @@ func Authenticate() gin.HandlerFunc {
 
 		// Bear Token format
 		authHeader = strings.TrimPrefix(authHeader, "Bearer ")
-		log.Printf("Token after trimming Bearer: %s", authHeader) // Log after trimming
+		// log.Printf("Token after trimming Bearer: %s", authHeader) // Log after trimming
 
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid authorization header format"})

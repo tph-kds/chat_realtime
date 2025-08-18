@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -200,10 +199,10 @@ func GetUsers() gin.HandlerFunc {
 			return
 		}
 
-		// Print testing
-		for _, user := range users {
-			fmt.Println(user)
-		}
+		// // Print testing
+		// for _, user := range users {
+		// 	fmt.Println(user)
+		// }
 
 		// Return the list of users
 		c.JSON(http.StatusOK, users)

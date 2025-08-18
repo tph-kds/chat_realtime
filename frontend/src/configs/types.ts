@@ -1,5 +1,6 @@
+import io from "socket.io-client";
 
-import { Socket } from "socket.io-client";
+type Socket = ReturnType<typeof io>;
 
 export interface BaseAttributes {
     _id: string;
@@ -201,4 +202,19 @@ export interface AuthImagePatternProps {
 // ######################## THE FORMAT MESSAGE OBJECTS TYPE DECLARATION #######################
 export interface FormatMessageTimeProps {
     date: string;
+}
+
+
+// Error Socket
+export interface SocketError extends Error {
+  type?: string;
+  description?: string;
+  context?: string;
+}
+
+export interface UserId {
+    userId: string;
+}
+export interface SocketUserIds {
+    userIds?:  UserId[];
 }

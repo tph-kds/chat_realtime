@@ -1,11 +1,18 @@
 import { X } from "lucide-react";
 import { userAuthService } from "../services/service_userAuth";
 import { userChatService } from "../services/service_userChat";
+import { useEffect } from "react";
 
 
 const ChatHeader = () => {
   const { selectedUser, setSelectedUser } = userChatService((state) => state);
-  const { onlineUsers } = userAuthService((state) => state);
+  const onlineUsers  = userAuthService((state) => state.onlineUsers);
+  // console.log("Online users: ", { onlineUsers });
+
+      // Sử dụng useEffect để lắng nghe sự thay đổi
+  useEffect(() => {
+      console.log("Online users have been updated:", onlineUsers);
+  }, [onlineUsers]);
 
   return (
     <div className="p-2.5 border-b border-base-300">
