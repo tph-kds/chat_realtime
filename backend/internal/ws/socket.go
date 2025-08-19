@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"time"
 
 	socketio "github.com/googollee/go-socket.io"
 	"github.com/googollee/go-socket.io/engineio"
@@ -94,20 +93,39 @@ func NewServerCustom() *socketio.Server {
 			userSocketMap[userId] = s.ID()
 			log.Println("User mapped: ", userId, "->", s.ID())
 		}
-		time.Sleep(1000 * time.Millisecond) // chờ 0.5s để frontend subscribe listener
-		//Broadcast the updated list of online users to all clients.
-		onlineUsers := make([]string, 0, len(userSocketMap))
-		for k := range userSocketMap {
-			onlineUsers = append(onlineUsers, k)
-		}
-		log.Println("[TESTING RIGHT HERE: ] Online users:", onlineUsers)
-		// s.Emit("getOnlineUsers", onlineUsers)
-		// server.BroadcastToRoom("/socket.io", s.ID(), "getOnlineUsers", onlineUsers)
-		server.BroadcastToNamespace("/socket.io/", "getOnlineUsers", onlineUsers)
-		log.Println("[BROADCAST: ] Successfully broadcasted:", onlineUsers)
-		// Liệt kê tất cả namespace hiện tại
-		log.Println("===== Active namespaces =====")
-		log.Println("Socket connected to namespace:", s.Namespace())
+		// time.Sleep(1000 * time.Millisecond) // chờ 0.5s để frontend subscribe listener
+		// //Broadcast the updated list of online users to all clients.
+		// onlineUsers := make([]string, 0, len(userSocketMap))
+		// for k := range userSocketMap {
+		// 	onlineUsers = append(onlineUsers, k)
+		// }
+		// log.Println("[TESTING RIGHT HERE: ] Online users:", onlineUsers)
+		// // s.Emit("getOnlineUsers", onlineUsers)
+		// // server.BroadcastToRoom("/socket.io", s.ID(), "getOnlineUsers", onlineUsers)
+		// server.BroadcastToNamespace("/socket.io/", "getOnlineUsers", onlineUsers)
+		// log.Println("[BROADCAST: ] Successfully broadcasted:", onlineUsers)
+		// // Liệt kê tất cả namespace hiện tại
+		// log.Println("===== Active namespaces =====")
+		// log.Println("Socket connected to namespace:", s.Namespace())
+		// return nil
+
+		// Chạy broadcast trong một goroutine riêng để không block handler OnConnect
+		go func() {
+			// Tạo danh sách online users trong goroutine để đảm bảo dữ liệu mới nhất
+			onlineUsers := make([]string, 0, len(userSocketMap))
+			for k := range userSocketMap {
+				onlineUsers = append(onlineUsers, k)
+			}
+			log.Println("[GOROUTINE] Preparing to broadcast:", onlineUsers)
+
+			// Dùng BroadcastToRoom cho an toàn
+			// server.BroadcastToRoom("/", "", "getOnlineUsers", onlineUsers)
+			server.BroadcastToNamespace("/", "getOnlineUsers", onlineUsers)
+
+			log.Println("[GOROUTINE] Successfully broadcasted:", onlineUsers)
+		}()
+
+		log.Println("===== OnConnect handler finished for socket", s.ID(), "=====")
 		return nil
 
 	})
@@ -139,7 +157,7 @@ func NewServerCustom() *socketio.Server {
 			onlineUsers = append(onlineUsers, k)
 		}
 
-		server.BroadcastToNamespace("/socket.io/", "getOnlineUsers", onlineUsers)
+		server.BroadcastToNamespace("/", "getOnlineUsers", onlineUsers)
 	})
 
 	return server
@@ -152,10 +170,10 @@ func (e *ErrServerClosed) Error() string {
 	return "server closed"
 }
 
-func EmitToSocket(userId string, event string, data interface{}) {
+func EmitToSocket(server *socketio.Server, userId string, event string, data interface{}) {
 	if sid, ok := userSocketMap[userId]; ok {
 		// server.BroadcastToRoom("/", sid, event, data)
-		server.ForEach("/socket.io/", "", func(s socketio.Conn) {
+		server.ForEach("/", "", func(s socketio.Conn) {
 			if s.ID() == sid {
 				s.Emit(event, data)
 			}

@@ -65,8 +65,11 @@ export const userChatService = create<ChatContextType>((set, get) => ({
     sendMessage: async (messageData: SendMessageData) => {
         const { selectedUser , messages } = get();
         try {
+            console.log("Sending message to: ", selectedUser);
+            console.log("Sending message to: ", selectedUser?._id);
+
             const res = await axiosInstance.post(`/messages/send/${selectedUser?._id}`, messageData);
-            // console.log("Message sent: ", res.data.message);
+            console.log("Message sent: ", res.data.message);
             if (messages) {
                 set({messages: [...messages, res.data.message]});
             } else {

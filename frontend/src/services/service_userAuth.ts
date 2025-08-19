@@ -208,10 +208,11 @@ export const userAuthService = create<AuthContextType>()(persist(
         const { authUser } = get();
         if (!authUser || !authUser._id || get().socket?.connected) return;
 
-        const socket = io.connect(`${SOCKET_BASE_URL}/?userId=${authUser._id}`, {
-            // query: { userId: authUser._id },
-            transports: ["websocket"],
-            path: "/socket.io"
+        // const socket = io.connect(`${SOCKET_BASE_URL}/?userId=${authUser._id}`, {
+        const socket = io.connect(SOCKET_BASE_URL, {
+            query: { userId: authUser._id },
+            // transports: ["websocket"],
+            // path: "/socket.io"
         });
 
         set({ socket: socket });
@@ -220,17 +221,14 @@ export const userAuthService = create<AuthContextType>()(persist(
             console.log("✅ Connected with id:", socket.id);
         });
 
-        // socket.on("connect_error", (err: SocketError) => {
-        //     console.error("❌ connect_error:", err.message);
-        // });
-        socket.addEventListener("getOnlineUsers", (event: MessageEvent) => {
-            console.log("[getOnlineUsers]: Online users:", event.data);
-            set({ onlineUsers: event.data });
+        socket.on("connect_error", (err: SocketError) => {
+            console.error("❌ connect_error:", err.message);
         });
+
         // Kiểm tra tất cả event
-        socket.on("socket.io/getOnlineUsers", (onlineUsers: MessageEvent) => {
+        socket.on("getOnlineUsers", (onlineUsers: string[]) => {
             console.log("[getOnlineUsers]: Online users:", onlineUsers);
-            // set({ onlineUsers: onlineUsers });
+            set({ onlineUsers: onlineUsers });
         });
         socket.on("disconnect", (reason: SocketError) => {
             console.warn("⚠️ Socket disconnected:", reason);
@@ -250,7 +248,7 @@ export const userAuthService = create<AuthContextType>()(persist(
 }),
     {
       name: "auth-storage", // key trong localStorage
-      partialize: (state) => ({ authUser: state.authUser, token: state.token }), 
+      partialize: (state) => ({ authUser: state.authUser, token: state.token , onlineUsers: state.onlineUsers }), 
     }
 ));
 

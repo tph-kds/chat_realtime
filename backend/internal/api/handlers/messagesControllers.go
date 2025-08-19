@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"log"
+
 	// "fmt"
 	"net/http"
 	"time"
@@ -164,6 +166,7 @@ func SendMessage() gin.HandlerFunc {
 			imageUrl = uploadResutl.SecureURL
 		}
 
+		log.Println("[SEND MESSAGE] - Sender ID:", senderId, "Receiver ID:", receiverId, "Text:", body.Text, "Image:", imageUrl)
 		newMessages := models.Message{
 			SenderId:   senderId,
 			ReceiverId: receiverId,
@@ -177,11 +180,15 @@ func SendMessage() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "Failed to send message"})
 			return
 		}
+		log.Println("[SEND MESSAGE] - Message sent successfully")
+
 		// wsCustom.EmitToSocket(receiverId.Hex(), "newMessage", newMessages)
 		// wsCustom.EmitToSocket(senderId.Hex(), "newMessage", newMessages)
 		// socketManager := wsCustom.GetSocketManager()
-		wsCustom.EmitToSocket(receiverId.Hex(), "NewMessage", newMessages)
-		wsCustom.EmitToSocket(senderId.Hex(), "NewMessage", newMessages)
+		server := wsCustom.GetSocketServer()
+		wsCustom.EmitToSocket(server, receiverId.Hex(), "newMessage", newMessages)
+		wsCustom.EmitToSocket(server, senderId.Hex(), "newMessage", newMessages)
+		log.Println("[SEND MESSAGE] - ErrorEmit to socket")
 		c.JSON(http.StatusOK, gin.H{"status": "Message sent successfully", "message": newMessages})
 
 	}

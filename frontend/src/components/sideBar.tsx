@@ -10,7 +10,7 @@ const SideBar = () => {
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = userChatService((state) => state);
 
   const { onlineUsers } = userAuthService((state) => state);
-  const [showOnlineOnly, setShowOnlineOnly] = useState(false);
+  const [showOnlineOnly, setShowOnlineOnly] = useState(true);
 
   useEffect(() => {
     getUsers();
