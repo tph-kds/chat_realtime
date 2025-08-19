@@ -20,6 +20,7 @@ export const userAuthService = create<AuthContextType>()(persist(
     onlineUsers: [] as string[],
     socket: null,
     token: null,
+    updatedProfile: null,
 
     checkAuth: async () => {
         try {
@@ -134,9 +135,12 @@ export const userAuthService = create<AuthContextType>()(persist(
 
     updateProfile: async (updateProfileData: UpdateProfileData) => {
         try {
+
             const userId = get().authUser?._id;
+            // console.log("Updating profile with userId:", get().authUser);
             const res = await axiosInstance.put(`/users/${userId}/update-profile`, updateProfileData);
-            set({authUser: res.data});
+            console.log("No of messages: ", res.data);
+            set({authUser: res.data.user, updatedProfile: res.data.updated_profile});
             set({isUpdatingProfile: true});
             toast.success("Profile updated successfully");
             // return res;

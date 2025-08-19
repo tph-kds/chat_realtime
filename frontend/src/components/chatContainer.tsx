@@ -68,7 +68,7 @@ const ChatContainer: React.FC = () => {
             ) : (
             messages?.map((message) => (
             <div
-                key={message.senderId + message.createdAt}
+                key={message.senderId + message.created_at + message._id}
                 className={`chat ${message.senderId === authUser?._id ? "chat-end" : "chat-start"}`}
                 ref={messageEndRef}
             >
@@ -77,8 +77,8 @@ const ChatContainer: React.FC = () => {
                     <img
                     src={
                         message.senderId === authUser?._id
-                        ? authUser.profilePic || "/avatar.png"
-                        : selectedUser.profilePic || "/avatar.png"
+                        ? authUser.profile_pic || "/avatar.png"
+                        : selectedUser.profile_pic || "/avatar.png"
                     }
                     alt="profile pic"
                     />
@@ -86,7 +86,7 @@ const ChatContainer: React.FC = () => {
                 </div>
                 <div className="chat-header mb-1">
                 <time className="text-xs opacity-50 ml-1">
-                    {formatMessageTime(message.createdAt)}
+                    {formatMessageTime(message.created_at)}
                 </time>
                 </div>
                 <div className="chat-bubble flex flex-col">

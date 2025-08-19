@@ -7,8 +7,8 @@ import type { AuthContextType } from "../configs/types";
 
 
 const ProfilePage: React.FC = () => {
-    const { authUser, isUpdatingProfile, updateProfile } = userAuthService((state) => state) as AuthContextType;
-    console.log("authUser IN PROFILE PAGE: ", authUser);
+    const { authUser, isUpdatingProfile, updateProfile, updatedProfile } = userAuthService((state) => state) as AuthContextType;
+    // console.log("authUser in PROFILEPAGE: ", authUser);
     const [selectedImg, setSelectedImg] = useState<string | null>(null);
     const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -21,9 +21,9 @@ const ProfilePage: React.FC = () => {
             setSelectedImg(base64Image);
             await updateProfile(
                 { 
-                    base64Image: base64Image,
-                    createdAt: authUser?.createdAt ?? new Date().toISOString(),
-                    updatedAt: authUser?.updatedAt ?? new Date().toISOString(),
+                    profile_pic: base64Image,
+                    created_at: authUser?.created_at ?? new Date().toISOString(),
+                    updated_at: updatedProfile?.updated_at ?? new Date().toISOString(),
                 });
         };
     };
@@ -42,7 +42,7 @@ const ProfilePage: React.FC = () => {
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <img
-                src={selectedImg || authUser?.profilePic || "/avatar.png"}
+                src={selectedImg || authUser?.profile_pic || "/avatar.png"}
                 alt="Profile"
                 className="size-32 rounded-full object-cover border-4 "
               />
@@ -95,7 +95,7 @@ const ProfilePage: React.FC = () => {
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 border-b border-zinc-700">
                 <span>Member Since</span>
-                <span>{authUser?.createdAt?.split("T")[0]}</span>
+                <span>{authUser?.created_at?.split("T")[0]}</span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span>Account Status</span>

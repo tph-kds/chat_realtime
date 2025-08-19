@@ -4,8 +4,8 @@ type Socket = ReturnType<typeof io>;
 
 export interface BaseAttributes {
     _id: string;
-    createdAt: Date;
-    updatedAt: Date;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export interface User extends BaseAttributes {
@@ -46,9 +46,9 @@ export interface AuthUser {
     first_name: string;
     last_name: string;
     email: string;
-    profilePic: string;
-    createdAt: string;
-    updatedAt: string;
+    profile_pic: string;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface SignUpData extends Record<string, unknown> {
@@ -64,9 +64,9 @@ export interface SignInData extends Record<string, unknown> {
 }
 
 export interface UpdateProfileData extends Record<string, unknown> {
-    base64Image: string;
-    createdAt: string;
-    updatedAt: string;
+    profile_pic: string;
+    // created_at: string;
+    updated_at: string;
 }
 
 export interface APIError {
@@ -83,6 +83,7 @@ export interface AuthState {
     onlineUsers: string[];
     socket: Socket |null;
     token: string | null | undefined;
+    updatedProfile: UpdateProfileData | null;
 }
 
 export interface AuthActions {
@@ -108,7 +109,7 @@ export interface ChatUser {
     last_name: string;
     // fullName: string;
     email: string;
-    profilePic: string;
+    profile_pic: string;
 }
 
 export interface MessageChatUser {
@@ -116,8 +117,8 @@ export interface MessageChatUser {
     receiverId: string;
     senderId: string;
     body: string;
-    createdAt: Date;
-    updatedAt: Date;
+    created_at: Date;
+    updated_at: Date;
     image: string;
     text: string;
 }
@@ -156,7 +157,7 @@ export type { ChatContextType };
 
 
 // ######################## THE THEME CHANGE OBJECT TYPE DECLARATION #######################
-export type Theme = "light" | "dark" | "coffee" | "corporate" ;
+export type Theme = "light" | "dark" | "coffee" | "corporate" | "luxury";
 
 export interface ThemeState {
     theme: Theme;

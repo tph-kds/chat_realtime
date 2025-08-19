@@ -91,14 +91,14 @@ const SignUpPage: React.FC = () => {
         // Updated: Validate the phone number format
         // Remove spaces to check the raw length
         const rawPhoneNumber = formData.phone.replace(/\s/g, '');
-        console.log("Raw phone number: ", rawPhoneNumber);
+        // console.log("Raw phone number: ", rawPhoneNumber);
         if (rawPhoneNumber.length !== 12) {
             toast.error("Phone number must be exactly 9 digits.");
             return false;
         }
         // Optional: Validate length of national number for Vietnam
         const parsed = parsePhoneNumber(formData.phone);
-        console.log("Parsed phone number: ", parsed?.country, parsed?.nationalNumber.length);
+        // console.log("Parsed phone number: ", parsed?.country, parsed?.nationalNumber.length);
         if (parsed?.country === "VN" && parsed?.nationalNumber.length !== 9) {
             toast.error("Vietnam phone number must be exactly 9 digits");
             return false;

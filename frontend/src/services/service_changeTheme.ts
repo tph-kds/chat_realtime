@@ -15,7 +15,7 @@ const getInitialTheme = () : Theme => {
         if (storedTheme && ["light", "dark", "coffee", "corporate"].includes(storedTheme)) {
             return storedTheme as Theme;
         } else {
-            return "light";
+            return "luxury";
         }
     } catch (error) {
         console.error("Error retrieving theme from localStorage:", error);

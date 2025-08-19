@@ -17,15 +17,15 @@ import { Toaster } from "react-hot-toast"; // For displaying toast notifications
 
 
 const App = () => {
-    const { authUser, checkAuth, isCheckingAuth, onlineUsers, isSigningUp } = userAuthService((state) => state);
+    const { authUser, checkAuth, isCheckingAuth, isSigningUp } = userAuthService((state) => state);
     const { theme } = useThemeChange((state) => state);
 
-    console.log("Online users: ", { onlineUsers });
+    // console.log("Online users: ", { onlineUsers });
     useEffect(() => {
         checkAuth();
     }, [checkAuth]);
 
-    console.log("userAuth state: ", { authUser, isCheckingAuth });
+    // console.log("userAuth state: ", { authUser, isCheckingAuth });
 
     if (isCheckingAuth) {
         return (

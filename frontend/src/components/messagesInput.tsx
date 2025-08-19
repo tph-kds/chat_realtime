@@ -49,9 +49,9 @@ const MessagesInput = () => {
       setImagePreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-			toast.error(`Failed to send message: ${errorMessage}`);
-			console.error("Failed to send message:", error);
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        toast.error(`Failed to send message: ${errorMessage}`);
+        console.error("Failed to send message:", error);
     }
   };
 

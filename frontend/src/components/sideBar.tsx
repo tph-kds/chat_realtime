@@ -19,6 +19,7 @@ const SideBar = () => {
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
+  
 
   if (isUsersLoading) return <SideBarSkeleton />;
 
@@ -62,7 +63,7 @@ const SideBar = () => {
           >
             <div className="relative mx-auto lg:mx-0">
               <img
-                src={user.profilePic || "/avatar.png"}
+                src={user.profile_pic || "/avatar.png"}
                 alt={user.first_name + " " + user.last_name}
                 className="size-12 object-cover rounded-full"
               />

@@ -57,8 +57,8 @@ func SignUp() gin.HandlerFunc {
 
 		// Generate rest of the user data
 		user.Password = HashPassword(user.Password)
-		user.Created_at = time.Now()
-		user.Updated_at = time.Now()
+		user.CreatedAt = time.Now()
+		user.UpdatedAt = time.Now()
 		user.ID = primitive.NewObjectID()
 		user.User_id = user.ID.Hex()
 		accessToken, refreshToken := GenerateTokens(*user.Email, user.User_id, *user.Role)
@@ -233,6 +233,10 @@ func UpdateProfileUser() gin.HandlerFunc {
 
 		userId := tokenClaims.UserID
 		var reqBody configs.UpdateProfileRequest
+		// update created at and updated at
+		// reqBody.CreatedAt = time.Now()
+		reqBody.UpdatedAt = time.Now()
+
 		if err := c.BindJSON(&reqBody); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": "Invalid request body in update profile"})
 			return
@@ -261,8 +265,8 @@ func UpdateProfileUser() gin.HandlerFunc {
 		var updatedUser configs.User
 		err = userCollection.FindOneAndUpdate(
 			ctx,
-			bson.M{"user_id": userId},
-			bson.M{"$set": bson.M{"profile_pic": uploadResutl.SecureURL}},
+			bson.M{"user_id": userId, "profile_pic": bson.M{"$exists": true}},
+			bson.M{"$set": bson.M{"profile_pic": uploadResutl.SecureURL}, "$currentDate": bson.M{"updated_at": true}},
 			options.FindOneAndUpdate().SetReturnDocument(options.After),
 		).Decode(&updatedUser)
 
@@ -270,9 +274,27 @@ func UpdateProfileUser() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "Failed to update profile pic in database"})
 			return
 		}
+		// Find and update entire profile pic
+
+		var userUpdateModel models.User
+		err = userCollection.FindOneAndUpdate(
+			ctx,
+			bson.M{"user_id": userId, "token": bson.M{"$exists": true}},
+			bson.M{"$set": bson.M{"profile_pic": uploadResutl.SecureURL}, "$currentDate": bson.M{"updated_at": true}},
+			options.FindOneAndUpdate().SetReturnDocument(options.After),
+		).Decode(&userUpdateModel)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "Failed to update profile pic in database"})
+			return
+		}
 
 		// Send successful response
-		c.JSON(http.StatusOK, updatedUser)
+		c.JSON(http.StatusOK, gin.H{
+			"message":         "Profile pic updated successfully",
+			"user":            updatedUser,
+			"updated_profile": reqBody,
+		})
 
 	}
 }
@@ -333,10 +355,28 @@ func CheckAuth(c *gin.Context) {
 		return
 	}
 
+	// Get updatedAt and createdAt in Database across id user
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	var user configs.User
+
+	err := userCollection.FindOne(ctx, bson.M{"user_id": tokenClaims.Email}).Decode(&user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "message": "Failed to get user from database"})
+		return
+	}
+
+	// Get updatedAt and createdAt from user database
+	updatedAtInfo := user.UpdatedAt
+	createdAtInfo := user.CreatedAt
+
 	// Return user Info to similar to the  req.user
 	c.JSON(http.StatusOK, gin.H{
-		"id":    tokenClaims.UserID,
-		"email": tokenClaims.Email,
-		"role":  tokenClaims.Role,
+		"_id":        tokenClaims.UserID,
+		"email":      tokenClaims.Email,
+		"role":       tokenClaims.Role,
+		"updated_at": updatedAtInfo,
+		"created_at": createdAtInfo,
 	})
 }

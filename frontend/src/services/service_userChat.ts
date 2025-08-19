@@ -26,7 +26,7 @@ export const userChatService = create<ChatContextType>((set, get) => ({
         set({isUsersLoading: true});
         try {
             const res = await axiosInstance.get<ChatUser[]>("/users");
-            // console.log("No of users: ", res.data);
+            console.log("[GET USERS:] No of users: ", res.data);
             set({users: res.data} );
             // return res;
         } catch (error) {
@@ -47,6 +47,8 @@ export const userChatService = create<ChatContextType>((set, get) => ({
         set({isMessagesLoading: true});
         try {
             const res = await axiosInstance.get<{messages: MessageChatUser[]}>(`/messages/${userId}`);
+            console.log("No of messages: ", res.data);
+            console.log("No of messages: ", res.data.messages);
             set({messages: res.data.messages});
             // return res;
         } catch (error) {
@@ -65,11 +67,11 @@ export const userChatService = create<ChatContextType>((set, get) => ({
     sendMessage: async (messageData: SendMessageData) => {
         const { selectedUser , messages } = get();
         try {
-            console.log("Sending message to: ", selectedUser);
-            console.log("Sending message to: ", selectedUser?._id);
+            // console.log("Sending message to: ", selectedUser);
+            // console.log("Sending message to: ", selectedUser?._id);
 
             const res = await axiosInstance.post(`/messages/send/${selectedUser?._id}`, messageData);
-            console.log("Message sent: ", res.data.message);
+            // console.log("Message sent: ", res.data.message);
             if (messages) {
                 set({messages: [...messages, res.data.message]});
             } else {

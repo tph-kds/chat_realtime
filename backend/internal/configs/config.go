@@ -2,6 +2,7 @@ package configs
 
 import (
 	"log"
+	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/joho/godotenv"
@@ -21,6 +22,8 @@ type Claims struct {
 	UserID string `json:"user_id"`
 	Email  string `json:"email"`
 	Role   string `json:"role"`
+	// CreatedAt time.Time `json:"created_at"`
+	// UpdatedAt time.Time `json:"updated_at"`
 
 	jwt.StandardClaims
 }
@@ -41,13 +44,17 @@ func SetServerPort(port string) {
 
 // UpdateProfile Function
 type UpdateProfileRequest struct {
-	ProfilePic string `json:"profile_pic" binding:"required"`
+	ProfilePic string    `bson:"profile_pic" json:"profile_pic" binding:"required"`
+	UpdatedAt  time.Time `bson:"updated_at" json:"updated_at"`
+	// CreatedAt  time.Time `bson:"created_at" json:"created_at"`
 }
 
 type User struct {
-	FirstName  string `json:"first_name" binding:"required"`
-	LastName   string `json:"last_name" binding:"required"`
-	Email      string `json:"email" binding:"required,email"`
-	Phone      string `json:"phone" binding:"required"`
-	ProfilePic string `json:"profile_pic" binding:"required"`
+	FirstName  string    `bson:"first_name" json:"first_name" binding:"required"`
+	LastName   string    `bson:"last_name" json:"last_name" binding:"required"`
+	Email      string    `bson:"email" json:"email" binding:"required,email"`
+	Phone      string    `bson:"phone" json:"phone" binding:"required"`
+	ProfilePic string    `bson:"profile_pic" json:"profile_pic" binding:"required"`
+	UpdatedAt  time.Time `bson:"updated_at" json:"updated_at"`
+	CreatedAt  time.Time `bson:"created_at" json:"created_at"`
 }
